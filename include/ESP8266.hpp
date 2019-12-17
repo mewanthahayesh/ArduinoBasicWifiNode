@@ -14,6 +14,10 @@ class ESP8266_UART{
     void initEspComm(SoftwareSerial *espserial);
     bool checkComm();
     bool setStationMode(); 
+    bool connectToTCPServer(const char* ip,unsigned int port);
+    bool sendTCPData(const char* data,unsigned int datalen);
+    int checkTCPStatus();
+    bool closeTCPConn();
 
 };
 

@@ -13,9 +13,10 @@ unsigned long timeStamp=0;
 SoftwareSerial espserial(8,9);
 ESP8266_UART esp1;
 
+
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(9600);
+ // Serial.begin(9600);
   espserial.begin(9600);
   pinMode(lightSense,INPUT);
   pinMode(LEDPin,OUTPUT);
@@ -46,7 +47,15 @@ void setup() {
       Serial.println("WIFI NOT Connected!");
   }
   */
+
+   stat = esp1.connectToTCPServer("52.63.133.79",1234);
+  if(stat==true){
+    Serial.println("Connected");
+  } else{
+    Serial.println("Conn. error");
+  }
   
+  timeStamp = millis();
 
 }
 
@@ -73,8 +82,33 @@ void loop() {
   // }
 
 
+if(millis()-timeStamp>15000){
 
+for(int i=0;i<3;i++) {
+  bool stat = esp1.checkTCPStatus();
+  if(stat!=0){
+     esp1.connectToTCPServer("52.63.133.79",1234);
+  }else{
+    break;
+  }
+}
 
+  //send data to the server
+  int ldrVal = analogRead(lightSense);
+  char buf[100];
+  memset(buf,0,100);
+  sprintf(buf,"{\"ldr\":%d}",ldrVal);
+
+  if(esp1.sendTCPData(buf,strlen(buf))){
+    Serial.println("MSG send success!");
+  }else{
+    Serial.println("MSG send fail");
+  }
+
+  //esp1.closeTCPConn();
+  timeStamp=millis();
+
+}
 
 delay(3000);
 
